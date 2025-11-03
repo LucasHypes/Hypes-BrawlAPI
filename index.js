@@ -20,3 +20,20 @@ app.get("/", (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+
+app.get("/player/:tag/battlelog", async (req, res) => {
+  try {
+    const tag = encodeURIComponent(req.params.tag.replace("#", "").toUpperCase());
+
+    const { data } = await api.get(`/players/%23${tag}/battlelog`);
+
+    const filtered = data.items.filter(match =>
+      match.event && (match.event.type === "friendly" || match.event.type === "tournament")
+    );
+
+    res.json(filtered);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Falha ao buscar battlelog" });
+  }
+});
