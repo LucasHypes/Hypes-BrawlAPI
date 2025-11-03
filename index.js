@@ -15,20 +15,23 @@ function normTag(tag) {
   return encodeURIComponent(tag.replace("#", "").toUpperCase());
 }
 
+// Rota principal
 app.get("/", (req, res) => {
-  res.send("✅ API de Brawl Stars está funcionando!");
+  res.send("API de Brawl Stars funcionando!");
 });
 
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
-
+// Rota original: battlelog filtrando amistosas e torneios
 app.get("/player/:tag/battlelog", async (req, res) => {
   try {
-    const tag = encodeURIComponent(req.params.tag.replace("#", "").toUpperCase());
-
+    const tag = normTag(req.params.tag);
     const { data } = await api.get(`/players/%23${tag}/battlelog`);
 
-    const filtered = data.items.filter(match =>
-      match.event && (match.event.type === "friendly" || match.event.type === "tournament")
+    if (!data.items || data.items.length === 0) {
+      return res.json({ message: "Nenhuma partida recente encontrada" });
+    }
+
+    const filtered = data.items.filter(
+      match => match.event && (match.event.type === "friendly" || match.event.type === "tournament")
     );
 
     res.json(filtered);
@@ -37,3 +40,16 @@ app.get("/player/:tag/battlelog", async (req, res) => {
     res.status(500).json({ error: "Falha ao buscar battlelog" });
   }
 });
+
+// Rota temporária para testar acesso direto à API da Supercell
+app.get("/test-supercell", async (req, res) => {
+  try {
+    const { data } = await api.get("/players/%238VPG0PCPJ/battlelog");
+    res.json({ success: true, partidas: data.items });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
