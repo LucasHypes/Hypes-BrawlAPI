@@ -1,0 +1,14 @@
+{
+  "name": "brawl-api",
+  "version": "1.0.0",
+  "description": "API com as partidas das melhores equipes de Brawl Stars",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.5.0"
+  }
+}
